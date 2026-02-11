@@ -117,6 +117,8 @@ add_library(core
   DSP/LabelMap.h
   DSPEmulator.cpp
   DSPEmulator.h
+  EmuLinkServer.cpp
+  EmuLinkServer.h
   FifoPlayer/FifoDataFile.cpp
   FifoPlayer/FifoDataFile.h
   FifoPlayer/FifoPlayer.cpp

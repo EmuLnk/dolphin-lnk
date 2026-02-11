@@ -46,6 +46,7 @@
 #include "Core/CoreTiming.h"
 #include "Core/DSPEmulator.h"
 #include "Core/DolphinAnalytics.h"
+#include "Core/EmuLinkServer.h"
 #include "Core/FifoPlayer/FifoPlayer.h"
 #include "Core/FreeLookManager.h"
 #include "Core/HLE/HLE.h"
@@ -583,8 +584,11 @@ static void EmuThread(Core::System& system, std::unique_ptr<BootParameters> boot
   HW::Init(system,
            NetPlay::IsNetPlayRunning() ? &(boot_session_data.GetNetplaySettings()->sram) : nullptr);
 
+  EmuLinkServer::Instance().Start();
+
   Common::ScopeGuard hw_guard{[&system] {
     INFO_LOG_FMT(CONSOLE, "{}", StopMessage(false, "Shutting down HW"));
+    EmuLinkServer::Instance().Stop();
     HW::Shutdown(system);
     INFO_LOG_FMT(CONSOLE, "{}", StopMessage(false, "HW shutdown"));
 

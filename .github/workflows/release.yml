@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & Release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk/ndk/*/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android \
+            /usr/share/swift /opt/hostedtoolcache/CodeQL
+          sudo apt-get clean
+          df -h
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Decode keystore
+        run: echo "${{ secrets.SIGNING_KEY }}" | tr -d '\n\r ' | base64 -d > /tmp/release.jks
+
+      - name: Build & sign release APK
+        working-directory: Source/Android
+        run: |
+          ./gradlew assembleRelease \
+            -Pkeystore=/tmp/release.jks \
+            -Pstorepass="${{ secrets.KEY_STORE_PASSWORD }}" \
+            -Pkeyalias="${{ secrets.ALIAS }}" \
+            -Pkeypass="${{ secrets.KEY_PASSWORD }}"
+
+      - name: Rename APK
+        run: |
+          mv Source/Android/app/build/outputs/apk/release/app-release.apk \
+            dolphin-lnk-${{ github.ref_name }}.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Dolphin LNK ${{ github.ref_name }}
+          body: ""
+          files: dolphin-lnk-${{ github.ref_name }}.apk
+          draft: true
+          prerelease: false
