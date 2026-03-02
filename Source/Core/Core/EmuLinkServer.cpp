@@ -52,10 +52,10 @@ void EmuLinkServer::Stop()
 void EmuLinkServer::ServerLoop()
 {
   __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer", "Loop Started (V2: READ/WRITE, UDP)");
-  
+
   u8 packet_buffer[1024 + 8]; // Header (8) + Max Data (1024)
   u8 memory_buffer[1024];
-  
+
   while (m_running)
   {
     std::optional<sf::IpAddress> sender;
@@ -64,6 +64,16 @@ void EmuLinkServer::ServerLoop()
 
     if (m_socket.receive(packet_buffer, sizeof(packet_buffer), received, sender, port) == sf::Socket::Status::Done)
     {
+      // IDENTIFY handshake: 4-byte "EMLK" magic → respond with emulator name
+      if (received == 4 && sender &&
+          packet_buffer[0] == 'E' && packet_buffer[1] == 'M' &&
+          packet_buffer[2] == 'L' && packet_buffer[3] == 'K')
+      {
+        const char* id = "dolphin";
+        (void)m_socket.send(id, 7, *sender, port);
+        continue;
+      }
+
       if (received >= 8 && sender)
       {
         u32 address, size;
@@ -72,7 +82,7 @@ void EmuLinkServer::ServerLoop()
 
         u32 physical_address = address & 0x3FFFFFFF;
 
-        if (received == 8) 
+        if (received == 8)
         {
           if (size <= 1024)
           {
@@ -80,11 +90,11 @@ void EmuLinkServer::ServerLoop()
             (void)m_socket.send(memory_buffer, size, *sender, port);
           }
         }
-        else 
+        else
         {
           u32 data_len = static_cast<u32>(received - 8);
           u32 actual_write_size = std::min(size, data_len);
-          
+
           if (actual_write_size > 0)
           {
             Core::System::GetInstance().GetMemory().CopyToEmu(physical_address, packet_buffer + 8, actual_write_size);

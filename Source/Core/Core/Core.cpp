@@ -584,7 +584,8 @@ static void EmuThread(Core::System& system, std::unique_ptr<BootParameters> boot
   HW::Init(system,
            NetPlay::IsNetPlayRunning() ? &(boot_session_data.GetNetplaySettings()->sram) : nullptr);
 
-  EmuLinkServer::Instance().Start();
+  if (Config::Get(Config::MAIN_EMULINK_SERVER_ENABLED))
+    EmuLinkServer::Instance().Start();
 
   Common::ScopeGuard hw_guard{[&system] {
     INFO_LOG_FMT(CONSOLE, "{}", StopMessage(false, "Shutting down HW"));

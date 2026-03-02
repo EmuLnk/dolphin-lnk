@@ -24,6 +24,7 @@ enum class BooleanSetting(
         true
     ),
     MAIN_ENABLE_CHEATS(Settings.FILE_DOLPHIN, Settings.SECTION_INI_CORE, "EnableCheats", false),
+    MAIN_EMULINK_SERVER_ENABLED(Settings.FILE_DOLPHIN, Settings.SECTION_INI_CORE, "EmuLinkServerEnabled", true),
     MAIN_OVERRIDE_REGION_SETTINGS(
         Settings.FILE_DOLPHIN,
         Settings.SECTION_INI_CORE,
@@ -983,6 +984,7 @@ enum class BooleanSetting(
             MAIN_LARGE_ENTRY_POINTS_MAP,
             MAIN_CPU_THREAD,
             MAIN_ENABLE_CHEATS,
+            MAIN_EMULINK_SERVER_ENABLED,
             MAIN_OVERRIDE_REGION_SETTINGS,
             MAIN_MMU,
             MAIN_PAUSE_ON_PANIC,

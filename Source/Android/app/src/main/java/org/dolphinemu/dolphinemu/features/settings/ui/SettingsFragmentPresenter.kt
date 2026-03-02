@@ -230,6 +230,14 @@ class SettingsFragmentPresenter(
         sl.add(
             SwitchSetting(
                 context,
+                BooleanSetting.MAIN_EMULINK_SERVER_ENABLED,
+                R.string.emulink_server_enabled,
+                R.string.emulink_server_enabled_description
+            )
+        )
+        sl.add(
+            SwitchSetting(
+                context,
                 BooleanSetting.MAIN_OVERRIDE_REGION_SETTINGS,
                 R.string.override_region_settings,
                 0
