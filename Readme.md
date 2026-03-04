@@ -22,6 +22,7 @@
 | [`retroarch-lnk`](https://github.com/EmuLnk/retroarch-lnk) | RetroArch fork with UDP protocol |
 | **`dolphin-lnk`** | **Dolphin fork with UDP protocol** |
 | [`ppsspp-lnk`](https://github.com/EmuLnk/ppsspp-lnk) | PPSSPP fork with UDP protocol |
+| [`melonds-lnk`](https://github.com/EmuLnk/melonDS-lnk) | melonDS fork with UDP protocol |
 
 ---
 
@@ -81,10 +82,10 @@ The "Debug" solution configuration is significantly slower, more verbose and les
 
 ## Building for Linux and macOS
 
-Dolphin requires [CMake](https://cmake.org/) for systems other than Windows. 
+Dolphin requires [CMake](https://cmake.org/) for systems other than Windows.
 You need a recent version of GCC or Clang with decent c++20 support. CMake will
 inform you if your compiler is too old.
-Many libraries are bundled with Dolphin and used if they're not installed on 
+Many libraries are bundled with Dolphin and used if they're not installed on
 your system. CMake will inform you if a bundled library is used or if you need
 to install any missing packages yourself. You may refer to the [wiki](https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux) for more information.
 
@@ -95,7 +96,7 @@ git submodule update --init --recursive
 
 ### macOS Build Steps:
 
-A binary supporting a single architecture can be built using the following steps: 
+A binary supporting a single architecture can be built using the following steps:
 
 1. `mkdir build`
 2. `cd build`
@@ -113,8 +114,8 @@ application bundle using the following steps:
 4. Universal binaries will be available in the `universal` folder
 
 Doing this is more complex as it requires installation of library dependencies for both x64 and ARM (or universal library
-equivalents) and may require specifying additional arguments to point to relevant library locations. 
-Execute BuildMacOSUniversalBinary.py --help for more details.  
+equivalents) and may require specifying additional arguments to point to relevant library locations.
+Execute BuildMacOSUniversalBinary.py --help for more details.
 
 ### Linux Global Build Steps:
 
