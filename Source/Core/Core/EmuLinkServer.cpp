@@ -12,11 +12,18 @@
 
 #include "Common/Logging/Log.h"
 #include "Common/StringUtil.h"
+#ifdef USE_RETRO_ACHIEVEMENTS
+#include "Core/AchievementManager.h"
+#endif
 #include "Core/ConfigManager.h"
 #include "Core/HW/DVD/DVDThread.h"
 #include "Core/HW/Memmap.h"
 #include "Core/System.h"
 #include "DiscIO/DiscUtils.h"
+
+#ifdef USE_RETRO_ACHIEVEMENTS
+#include <rcheevos/include/rc_client.h>
+#endif
 
 EmuLinkServer& EmuLinkServer::Instance()
 {
@@ -186,6 +193,14 @@ void EmuLinkServer::ServerLoop()
           if (actual_write_size > 0)
           {
             memory.CopyToEmu(physical_address, packet_buffer + 8, actual_write_size);
+            // RA rules: memory tampering disqualifies hardcore
+#ifdef USE_RETRO_ACHIEVEMENTS
+            if (AchievementManager::GetInstance().IsHardcoreModeActive()) {
+              rc_client_set_hardcore_enabled(AchievementManager::GetInstance().GetClient(), 0);
+              __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer",
+                                  "Hardcore mode disabled by memory write.");
+            }
+#endif
           }
         }
       }
