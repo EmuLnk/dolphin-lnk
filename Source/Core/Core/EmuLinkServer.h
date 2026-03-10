@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <string>
 #include <thread>
 #include <SFML/Network/UdpSocket.hpp>
 
@@ -24,8 +25,10 @@ private:
   ~EmuLinkServer();
 
   void ServerLoop();
+  void ComputeBootDOLHash();
 
   std::atomic<bool> m_running{false};
   std::thread m_thread;
   sf::UdpSocket m_socket;
+  std::string m_game_hash;
 };
