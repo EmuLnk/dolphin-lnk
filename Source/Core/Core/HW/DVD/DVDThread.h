@@ -64,6 +64,7 @@ public:
 
   void SetDisc(std::unique_ptr<DiscIO::Volume> disc);
   bool HasDisc() const;
+  const DiscIO::Volume* GetVolume() const { return m_disc.get(); }
 
   bool HasWiiHashes() const;
   DiscIO::Platform GetDiscType() const;
