@@ -57,6 +57,7 @@ extern const Info<bool> MAIN_SKIP_IPL;
 extern const Info<PowerPC::CPUCore> MAIN_CPU_CORE;
 extern const Info<bool> MAIN_JIT_FOLLOW_BRANCH;
 extern const Info<bool> MAIN_FASTMEM;
+extern const Info<bool> MAIN_PAGE_TABLE_FASTMEM;
 extern const Info<bool> MAIN_FASTMEM_ARENA;
 extern const Info<bool> MAIN_LARGE_ENTRY_POINTS_MAP;
 extern const Info<bool> MAIN_ACCURATE_CPU_CACHE;
@@ -339,6 +340,13 @@ extern const Info<bool> MAIN_MOVIE_SHOW_OSD;
 
 extern const Info<bool> MAIN_INPUT_BACKGROUND_INPUT;
 
+extern const Config::Info<std::string> MAIN_SDL_HINT_JOYSTICK_ENHANCED_REPORTS;
+extern const Config::Info<std::string> MAIN_SDL_HINT_JOYSTICK_WGI;
+extern const Config::Info<std::string> MAIN_SDL_HINT_JOYSTICK_HIDAPI_PS5_PLAYER_LED;
+extern const Config::Info<std::string> MAIN_SDL_HINT_JOYSTICK_DIRECTINPUT;
+extern const Config::Info<std::string> MAIN_SDL_HINT_JOYSTICK_HIDAPI_COMBINE_JOY_CONS;
+extern const Config::Info<std::string> MAIN_SDL_HINT_JOYSTICK_HIDAPI_VERTICAL_JOY_CONS;
+
 // Main.Debug
 
 extern const Info<bool> MAIN_DEBUG_JIT_OFF;
@@ -386,6 +394,8 @@ extern const std::array<Info<std::string>, EMULATED_LOGITECH_MIC_COUNT>
     MAIN_LOGITECH_MIC_MICROPHONE;
 extern const std::array<Info<bool>, EMULATED_LOGITECH_MIC_COUNT> MAIN_LOGITECH_MIC_MUTED;
 extern const std::array<Info<s16>, EMULATED_LOGITECH_MIC_COUNT> MAIN_LOGITECH_MIC_VOLUME_MODIFIER;
+
+extern const Info<std::string> MAIN_TRIFORCE_IP_REDIRECTIONS;
 
 // GameCube path utility functions
 
