@@ -108,8 +108,8 @@ void EmuLinkServer::ServerLoop()
 {
   __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer", "Loop Started (EMLKV2, UDP)");
 
-  u8 packet_buffer[1024 + 8]; // Header (8) + Max Data (1024)
-  u8 memory_buffer[1024];
+  u8 packet_buffer[4096 + 8]; // Header (8) + Max Data (4096)
+  u8 memory_buffer[4096];
 
   while (m_running)
   {
@@ -141,6 +141,60 @@ void EmuLinkServer::ServerLoop()
         continue;
       }
 
+      // Batch read: "EL" magic (0x45, 0x4C) + count + entries
+      if (received >= 4 && sender &&
+          packet_buffer[0] == 0x45 && packet_buffer[1] == 0x4C)
+      {
+        uint16_t count;
+        std::memcpy(&count, packet_buffer + 2, 2);
+        if (count > 0 && count <= 256 && received >= 4 + count * 8)
+        {
+          u8 response[16384];
+          int resp_off = 4;
+          response[0] = 0x45;
+          response[1] = 0x4C;
+          std::memcpy(response + 2, &count, 2);
+
+          auto& memory = Core::System::GetInstance().GetMemory();
+
+          for (uint16_t i = 0; i < count; i++)
+          {
+            u32 addr, size;
+            std::memcpy(&addr, packet_buffer + 4 + i * 8, 4);
+            std::memcpy(&size, packet_buffer + 4 + i * 8 + 4, 4);
+            if (size > 4096) size = 4096;
+
+            u32 phys = addr & 0x3FFFFFFF;
+            bool valid = false;
+            if (phys + size > phys)
+            {
+              if (phys + size <= memory.GetRamSizeReal())
+                valid = true;
+              else if (memory.GetEXRAM() && (phys >> 28) == 0x1 &&
+                       ((phys & 0x0FFFFFFF) + size) <= memory.GetExRamSizeReal())
+                valid = true;
+            }
+
+            if (valid && resp_off + 2 + (int)size <= (int)sizeof(response))
+            {
+              u16 len16 = static_cast<u16>(size);
+              std::memcpy(response + resp_off, &len16, 2);
+              resp_off += 2;
+              memory.CopyFromEmu(response + resp_off, phys, size);
+              resp_off += size;
+            }
+            else
+            {
+              response[resp_off++] = 0;
+              response[resp_off++] = 0;
+            }
+          }
+
+          (void)m_socket.send(response, resp_off, *sender, port);
+          continue;
+        }
+      }
+
       if (received >= 8 && sender)
       {
         u32 address, size;
@@ -169,7 +223,7 @@ void EmuLinkServer::ServerLoop()
         if (!address_valid)
         {
           // Respond with zeros instead of timing out
-          if (received == 8 && size <= 1024)
+          if (received == 8 && size <= 4096)
           {
             std::memset(memory_buffer, 0, size);
             (void)m_socket.send(memory_buffer, size, *sender, port);
@@ -179,7 +233,7 @@ void EmuLinkServer::ServerLoop()
 
         if (received == 8)
         {
-          if (size <= 1024)
+          if (size <= 4096)
           {
             memory.CopyFromEmu(memory_buffer, physical_address, size);
             (void)m_socket.send(memory_buffer, size, *sender, port);
