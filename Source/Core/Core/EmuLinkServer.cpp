@@ -5,7 +5,6 @@
 #include <cstring>
 #include <vector>
 
-#include <android/log.h>
 #include <mbedtls/md5.h>
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/Packet.hpp>
@@ -38,19 +37,19 @@ EmuLinkServer::~EmuLinkServer()
 
 bool EmuLinkServer::Start()
 {
-  __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer", "Server Starting...");
+  NOTICE_LOG_FMT(CORE, "{}", "Server Starting...");
   if (m_running)
     return true;
 
   if (m_socket.bind(55355, sf::IpAddress::Any) != sf::Socket::Status::Done)
   {
-    __android_log_print(ANDROID_LOG_ERROR, "EmuLinkServer", "Failed to bind 55355");
+    NOTICE_LOG_FMT(CORE, "{}", "Failed to bind 55355");
     return false;
   }
 
   m_running = true;
   m_thread = std::thread(&EmuLinkServer::ServerLoop, this);
-  __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer", "Server Started on 55355");
+  NOTICE_LOG_FMT(CORE, "{}", "Server Started on 55355");
   return true;
 }
 
@@ -59,7 +58,7 @@ void EmuLinkServer::Stop()
   if (!m_running)
     return;
 
-  __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer", "Server Stopping...");
+  NOTICE_LOG_FMT(CORE, "{}", "Server Stopping...");
   m_running = false;
   m_game_hash.clear();
   m_socket.unbind();
@@ -100,13 +99,13 @@ void EmuLinkServer::ComputeBootDOLHash()
 
   m_game_hash = Common::BytesToHexString(digest);
 
-  __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer", "boot.dol hash: %s",
+  NOTICE_LOG_FMT(CORE, "boot.dol hash: {}",
                        m_game_hash.c_str());
 }
 
 void EmuLinkServer::ServerLoop()
 {
-  __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer", "Loop Started (EMLKV2, UDP)");
+  NOTICE_LOG_FMT(CORE, "{}", "Loop Started (EMLKV2, UDP)");
 
   static constexpr u32 MAX_PAYLOAD = 4096;
   u8 packet_buffer[MAX_PAYLOAD + 8]; // Header (8) + Max Data
@@ -259,7 +258,7 @@ void EmuLinkServer::ServerLoop()
 #ifdef USE_RETRO_ACHIEVEMENTS
             if (AchievementManager::GetInstance().IsHardcoreModeActive()) {
               rc_client_set_hardcore_enabled(AchievementManager::GetInstance().GetClient(), 0);
-              __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer",
+              INFO_LOG_FMT(CORE, "{}",
                                   "Hardcore mode disabled by memory write.");
             }
 #endif
@@ -268,5 +267,5 @@ void EmuLinkServer::ServerLoop()
       }
     }
   }
-  __android_log_print(ANDROID_LOG_INFO, "EmuLinkServer", "Loop Exited");
+  NOTICE_LOG_FMT(CORE, "{}", "Loop Exited");
 }
